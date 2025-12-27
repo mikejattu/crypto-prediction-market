@@ -52,6 +52,11 @@ jobs:
           cd backend
           pytest
           cd ..
+      - name: Test with Jest for Frontend 
+        run: |
+          cd frontend 
+          npm test 
+          cd ..
   run-linters:
     runs-on: ubuntu-latest
     steps:
