@@ -36,4 +36,6 @@ jobs:
           echo test, and deploy your project.
       - name: Test with pytest
         run: |
+          cd backend
+          pip install -r requirements.txt
           pytest
