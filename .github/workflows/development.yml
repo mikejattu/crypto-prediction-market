@@ -33,8 +33,21 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
-      - name: Test with pytest
+      - name: Install requirements
         run: |
           cd backend
           pip install -r requirements.txt
+          cd ..
+          cd frontend 
+          npm install
+          cd ..
+
+      - name: Test with pytest
+        run: |
+          cd backend
           pytest
+          cd ..
+      - name: Black 
+        run: |
+          cd backend 
+          black --check .
