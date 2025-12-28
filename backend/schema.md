@@ -1,5 +1,5 @@
 # MarketPulse Database Schema
-
+# ALL ARE SUBJECT TO CHANGE, THIS DOCUMENT TO SERVE A REFERENCE STARTING POINT
 ## 1. Core Market Data
 
 ### `platforms`
@@ -290,3 +290,72 @@ deployed_at             TIMESTAMP
 
 ---
 
+## 6. Analytics & Backtesting
+
+### `backtest_runs`
+
+**Purpose:** Metadata for backtesting experiments.
+
+**Schema:**
+```sql
+id                      UUID PRIMARY KEY DEFAULT gen_random_uuid()
+model_version_id        UUID REFERENCES model_versions(id) NOT NULL
+run_name                VARCHAR(255) NOT NULL
+data_start_date         TIMESTAMP NOT NULL
+data_end_date           TIMESTAMP NOT NULL
+num_markets             INTEGER DEFAULT 0
+num_predictions         INTEGER DEFAULT 0
+overall_metrics         JSONB
+created_at              TIMESTAMP DEFAULT NOW()
+completed_at            TIMESTAMP
+status                  VARCHAR(20) NOT NULL  -- 'running', 'completed', 'failed'
+```
+
+---
+
+### `backtest_results`
+
+**Purpose:** Individual prediction outcomes from backtests.
+
+**Schema:**
+```sql
+id                              UUID PRIMARY KEY DEFAULT gen_random_uuid()
+backtest_run_id                 UUID REFERENCES backtest_runs(id) ON DELETE CASCADE NOT NULL
+market_id                       UUID REFERENCES markets(id) NOT NULL
+contract_id                     UUID REFERENCES contracts(id) NOT NULL
+prediction_timestamp            TIMESTAMP NOT NULL
+predicted_probability           DECIMAL(5, 4) NOT NULL
+actual_outcome                  DECIMAL(5, 4) NOT NULL
+market_probability_at_prediction DECIMAL(5, 4) NOT NULL
+time_to_resolution_hours        DECIMAL(10, 2) NOT NULL
+brier_score                     DECIMAL(6, 4) NOT NULL
+log_loss                        DECIMAL(6, 4) NOT NULL
+category                        VARCHAR(100)
+platform                        VARCHAR(50)
+```
+
+---
+
+## 7. System Monitoring
+
+### `ingestion_jobs`
+
+**Purpose:** Log data pipeline runs for monitoring and debugging.
+
+**Schema:**
+```sql
+id                      UUID PRIMARY KEY DEFAULT gen_random_uuid()
+platform_id             UUID REFERENCES platforms(id)
+job_type                VARCHAR(50) NOT NULL  -- 'metadata_sync', 'snapshot_batch', 'sentiment_scrape'
+started_at              TIMESTAMP DEFAULT NOW()
+completed_at            TIMESTAMP
+status                  VARCHAR(20) NOT NULL  -- 'running', 'success', 'failed'
+items_processed         INTEGER DEFAULT 0
+errors                  JSONB
+```
+
+---
+
+**Document Version:** 1.0  
+**Maintained By:** Aryan  
+**Last Review:** December 2025
