@@ -192,3 +192,41 @@ avg_divergence           DECIMAL(5, 4)
 PRIMARY KEY (timestamp, model_version_id, aggregation_level, aggregation_key)
 ```
 ---
+
+
+## 3. User & Authentication
+
+### `users`
+
+**Purpose:** User accounts for authentication and social features.
+
+**Schema:**
+```sql
+id                      UUID PRIMARY KEY DEFAULT gen_random_uuid()
+email                   VARCHAR(255) UNIQUE NOT NULL
+username                VARCHAR(50) UNIQUE NOT NULL
+hashed_password         VARCHAR(255) NOT NULL
+display_name            VARCHAR(100)
+avatar_url              VARCHAR(500)
+is_active               BOOLEAN DEFAULT true
+email_verified          BOOLEAN DEFAULT false
+created_at              TIMESTAMP DEFAULT NOW()
+last_login              TIMESTAMP
+```
+---
+
+### `user_sessions`
+
+**Purpose:** Active login sessions (optional if using JWT).
+
+**Schema:**
+```sql
+id                      UUID PRIMARY KEY DEFAULT gen_random_uuid()
+user_id                 UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL
+token_hash              VARCHAR(255) UNIQUE NOT NULL
+created_at              TIMESTAMP DEFAULT NOW()
+expires_at              TIMESTAMP NOT NULL
+last_activity           TIMESTAMP DEFAULT NOW()
+```
+
+---
