@@ -230,3 +230,63 @@ last_activity           TIMESTAMP DEFAULT NOW()
 ```
 
 ---
+
+## 4. Social Features
+
+### `comments`
+
+**Purpose:** User comments and analysis on specific markets.
+
+**Schema:**
+```sql
+id                      UUID PRIMARY KEY DEFAULT gen_random_uuid()
+market_id               UUID REFERENCES markets(id) ON DELETE CASCADE NOT NULL
+user_id                 UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL
+content                 TEXT NOT NULL
+is_edited               BOOLEAN DEFAULT false
+created_at              TIMESTAMP DEFAULT NOW()
+updated_at              TIMESTAMP
+```
+
+
+---
+
+### `watchlists`
+
+**Purpose:** User-saved favorite markets for tracking.
+
+**Schema:**
+```sql
+id                      UUID PRIMARY KEY DEFAULT gen_random_uuid()
+user_id                 UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL
+market_id               UUID REFERENCES markets(id) ON DELETE CASCADE NOT NULL
+added_at                TIMESTAMP DEFAULT NOW()
+notes                   TEXT
+
+CONSTRAINT unique_user_market_watch UNIQUE(user_id, market_id)
+```
+
+---
+
+## 5. Forecasting & Models
+
+### `model_versions`
+
+**Purpose:** Track different model iterations and configurations.
+
+**Schema:**
+```sql
+id                      UUID PRIMARY KEY DEFAULT gen_random_uuid()
+version_name            VARCHAR(100) UNIQUE NOT NULL
+model_type              VARCHAR(50) NOT NULL  -- 'logistic_regression', 'random_forest', 'lstm', 'ensemble'
+description             TEXT
+hyperparameters         JSONB
+feature_set             JSONB
+training_metrics        JSONB
+is_active               BOOLEAN DEFAULT false
+created_at              TIMESTAMP DEFAULT NOW()
+deployed_at             TIMESTAMP
+```
+
+---
+
