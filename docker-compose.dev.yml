@@ -2,15 +2,17 @@
 #For reference only: Docker compose will create the database and setup redis
 
 version: '3.8'
-
+#services: define the different containers to be run
+#each service is a separate container
+#volumes: define persistent storage for the containers, basicallly where it will store data on the container host machine
 services:
   timescaledb:
     image: timescale/timescaledb:latest-pg17
     container_name: timescaledb_dev
     environment:
-      - POSTGRES_DB: marketpulse
-      - POSTGRES_USER: postgres
-      - POSTGRES_PASSWORD: password
+      - POSTGRES_DB=marketpulse
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
     volumes:
@@ -30,7 +32,7 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
-    command: resdis-server --appendonly yes
+    command: redis-server --appendonly yes
   
 volumes:
   timescaledb_data:
