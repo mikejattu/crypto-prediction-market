@@ -11,9 +11,9 @@ from alembic import context
 # Add backend to path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from app.core.config import settings
-from app.db.database import Base
-from app.db.models import Platform, CryptoCategory, Market, Contract
+from app.core.config import settings  # noqa: E402
+from app.db.database import Base  # noqa: E402
+from app.db import models  # noqa: E402, F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

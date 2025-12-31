@@ -12,10 +12,10 @@ from pathlib import Path
 # Add backend to Python path so we can import app modules
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from app.db.database import AsyncSessionLocal
-from app.db.models import Platform, CryptoCategory, Market, Contract
-from datetime import datetime, timedelta
-from decimal import Decimal
+from app.db.database import AsyncSessionLocal  # noqa: E402
+from app.db.models import Platform, CryptoCategory, Market, Contract  # noqa: E402
+from datetime import datetime  # noqa: E402
+from decimal import Decimal  # noqa: E402
 
 
 async def seed_platforms():
@@ -33,14 +33,8 @@ async def seed_platforms():
 
         # Create platform records
         platforms = [
-            Platform(
-                name="Kalshi",
-                api_base_url="https://api.kalshi.com/v1"
-            ),
-            Platform(
-                name="Polymarket",
-                api_base_url="https://api.polymarket.com/v1"
-            )
+            Platform(name="Kalshi", api_base_url="https://api.kalshi.com/v1"),
+            Platform(name="Polymarket", api_base_url="https://api.polymarket.com/v1"),
         ]
 
         # Add to database and commit
@@ -70,21 +64,21 @@ async def seed_crypto_categories():
                 slug="bitcoin",
                 description="Bitcoin and BTC-related markets",
                 symbol="BTC",
-                coingecko_id="bitcoin"  # For future price data integration
+                coingecko_id="bitcoin",  # For future price data integration
             ),
             CryptoCategory(
                 name="Ethereum",
                 slug="ethereum",
                 description="Ethereum and ETH-related markets",
                 symbol="ETH",
-                coingecko_id="ethereum"
+                coingecko_id="ethereum",
             ),
             CryptoCategory(
                 name="Solana",
                 slug="solana",
                 description="Solana and SOL-related markets",
                 symbol="SOL",
-                coingecko_id="solana"
+                coingecko_id="solana",
             ),
         ]
 
@@ -119,13 +113,17 @@ async def seed_sample_market():
             crypto_category_id=btc_category.id if btc_category else None,
             platform_market_id="BTC-100K-2025",  # Platform's internal ID
             title="Will Bitcoin reach $100,000 by Dec 31, 2025?",
-            description="This market resolves to YES if Bitcoin (BTC) reaches $100,000 USD on any major exchange by December 31, 2025, 11:59 PM ET.",
+            description=(
+                "This market resolves to YES if Bitcoin (BTC) reaches "
+                "$100,000 USD on any major exchange by December 31, 2025, "
+                "11:59 PM ET."
+            ),
             question="Will Bitcoin reach $100,000 by Dec 31, 2025?",
             tags={"crypto": True, "bitcoin": True, "price": True},  # JSONB field
             market_type="binary",  # Binary = Yes/No market
             status="active",  # Market is currently open for trading
             close_time=datetime(2025, 12, 31, 23, 59, 0),  # When market closes
-            total_volume=Decimal("125000.50")  # Total trading volume in USD
+            total_volume=Decimal("125000.50"),  # Total trading volume in USD
         )
 
         db.add(market)
@@ -137,7 +135,7 @@ async def seed_sample_market():
             platform_contract_id="BTC-100K-2025-YES",
             outcome_label="Yes",
             current_price=Decimal("68.50"),  # Price in cents (0-100)
-            current_probability=Decimal("0.6850")  # Probability (0.0-1.0)
+            current_probability=Decimal("0.6850"),  # Probability (0.0-1.0)
         )
 
         # Create NO contract (currently at 31.5 cents = 31.5% implied probability)
@@ -146,7 +144,7 @@ async def seed_sample_market():
             platform_contract_id="BTC-100K-2025-NO",
             outcome_label="No",
             current_price=Decimal("31.50"),
-            current_probability=Decimal("0.3150")
+            current_probability=Decimal("0.3150"),
         )
 
         db.add_all([yes_contract, no_contract])

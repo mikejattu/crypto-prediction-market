@@ -8,7 +8,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     debug=settings.DEBUG,
     version="1.0.0",
-    description="Real-time prediction market analytics and forecasting platform"
+    description="Real-time prediction market analytics and forecasting platform",
 )
 
 origins = [
@@ -37,13 +37,10 @@ async def read_root() -> dict:
         "message": f"Welcome to {settings.PROJECT_NAME} API",
         "version": "1.0.0",
         "docs": "/docs",
-        "status": "operational"
+        "status": "operational",
     }
 
 
 @app.get("/health", tags=["health"])
 async def health_check() -> dict:
-    return {
-        "status": "healthy",
-        "environment": settings.ENVIRONMENT
-    }
+    return {"status": "healthy", "environment": settings.ENVIRONMENT}

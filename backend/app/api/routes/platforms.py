@@ -9,17 +9,14 @@ from app.schemas.platform import (
     PlatformCreate,
     PlatformUpdate,
     PlatformResponse,
-    PlatformListResponse
+    PlatformListResponse,
 )
 
 router = APIRouter(prefix="/platforms", tags=["platforms"])
 
 
 @router.post("/", response_model=PlatformResponse, status_code=status.HTTP_201_CREATED)
-async def create_platform(
-    platform: PlatformCreate,
-    db: AsyncSession = Depends(get_db)
-):
+async def create_platform(platform: PlatformCreate, db: AsyncSession = Depends(get_db)):
     db_platform = Platform(**platform.model_dump())
     db.add(db_platform)
     await db.commit()
@@ -29,9 +26,7 @@ async def create_platform(
 
 @router.get("/", response_model=PlatformListResponse)
 async def list_platforms(
-    skip: int = 0,
-    limit: int = 100,
-    db: AsyncSession = Depends(get_db)
+    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)
 ):
     query = select(Platform).offset(skip).limit(limit)
     result = await db.execute(query)
@@ -45,16 +40,13 @@ async def list_platforms(
 
 
 @router.get("/{platform_id}", response_model=PlatformResponse)
-async def get_platform(
-    platform_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_platform(platform_id: UUID, db: AsyncSession = Depends(get_db)):
     platform = await db.get(Platform, platform_id)
 
     if not platform:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Platform with id {platform_id} not found"
+            detail=f"Platform with id {platform_id} not found",
         )
 
     return platform
@@ -64,14 +56,14 @@ async def get_platform(
 async def update_platform(
     platform_id: UUID,
     platform_update: PlatformUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     platform = await db.get(Platform, platform_id)
 
     if not platform:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Platform with id {platform_id} not found"
+            detail=f"Platform with id {platform_id} not found",
         )
 
     update_data = platform_update.model_dump(exclude_unset=True)
@@ -85,16 +77,13 @@ async def update_platform(
 
 
 @router.delete("/{platform_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_platform(
-    platform_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def delete_platform(platform_id: UUID, db: AsyncSession = Depends(get_db)):
     platform = await db.get(Platform, platform_id)
 
     if not platform:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Platform with id {platform_id} not found"
+            detail=f"Platform with id {platform_id} not found",
         )
 
     await db.delete(platform)

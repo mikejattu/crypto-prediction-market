@@ -9,16 +9,17 @@ from app.schemas.crypto_category import (
     CryptoCategoryCreate,
     CryptoCategoryUpdate,
     CryptoCategoryResponse,
-    CryptoCategoryListResponse
+    CryptoCategoryListResponse,
 )
 
 router = APIRouter(prefix="/crypto-categories", tags=["crypto-categories"])
 
 
-@router.post("/", response_model=CryptoCategoryResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=CryptoCategoryResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_crypto_category(
-    category: CryptoCategoryCreate,
-    db: AsyncSession = Depends(get_db)
+    category: CryptoCategoryCreate, db: AsyncSession = Depends(get_db)
 ):
     db_category = CryptoCategory(**category.model_dump())
     db.add(db_category)
@@ -29,9 +30,7 @@ async def create_crypto_category(
 
 @router.get("/", response_model=CryptoCategoryListResponse)
 async def list_crypto_categories(
-    skip: int = 0,
-    limit: int = 100,
-    db: AsyncSession = Depends(get_db)
+    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)
 ):
     query = select(CryptoCategory).offset(skip).limit(limit)
     result = await db.execute(query)
@@ -45,16 +44,13 @@ async def list_crypto_categories(
 
 
 @router.get("/{category_id}", response_model=CryptoCategoryResponse)
-async def get_crypto_category(
-    category_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_crypto_category(category_id: UUID, db: AsyncSession = Depends(get_db)):
     category = await db.get(CryptoCategory, category_id)
 
     if not category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Crypto category with id {category_id} not found"
+            detail=f"Crypto category with id {category_id} not found",
         )
 
     return category
@@ -64,14 +60,14 @@ async def get_crypto_category(
 async def update_crypto_category(
     category_id: UUID,
     category_update: CryptoCategoryUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     category = await db.get(CryptoCategory, category_id)
 
     if not category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Crypto category with id {category_id} not found"
+            detail=f"Crypto category with id {category_id} not found",
         )
 
     update_data = category_update.model_dump(exclude_unset=True)
@@ -85,16 +81,13 @@ async def update_crypto_category(
 
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_crypto_category(
-    category_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def delete_crypto_category(category_id: UUID, db: AsyncSession = Depends(get_db)):
     category = await db.get(CryptoCategory, category_id)
 
     if not category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Crypto category with id {category_id} not found"
+            detail=f"Crypto category with id {category_id} not found",
         )
 
     await db.delete(category)

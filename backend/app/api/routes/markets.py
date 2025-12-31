@@ -10,17 +10,14 @@ from app.schemas.market import (
     MarketCreate,
     MarketUpdate,
     MarketResponse,
-    MarketListResponse
+    MarketListResponse,
 )
 
 router = APIRouter(prefix="/markets", tags=["markets"])
 
 
 @router.post("/", response_model=MarketResponse, status_code=status.HTTP_201_CREATED)
-async def create_market(
-    market: MarketCreate,
-    db: AsyncSession = Depends(get_db)
-):
+async def create_market(market: MarketCreate, db: AsyncSession = Depends(get_db)):
     db_market = Market(**market.model_dump())
     db.add(db_market)
     await db.commit()
@@ -34,7 +31,7 @@ async def list_markets(
     limit: int = 100,
     platform_id: Optional[UUID] = None,
     status_filter: Optional[str] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     query = select(Market)
 
@@ -62,16 +59,13 @@ async def list_markets(
 
 
 @router.get("/{market_id}", response_model=MarketResponse)
-async def get_market(
-    market_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_market(market_id: UUID, db: AsyncSession = Depends(get_db)):
     market = await db.get(Market, market_id)
 
     if not market:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Market with id {market_id} not found"
+            detail=f"Market with id {market_id} not found",
         )
 
     return market
@@ -79,16 +73,14 @@ async def get_market(
 
 @router.put("/{market_id}", response_model=MarketResponse)
 async def update_market(
-    market_id: UUID,
-    market_update: MarketUpdate,
-    db: AsyncSession = Depends(get_db)
+    market_id: UUID, market_update: MarketUpdate, db: AsyncSession = Depends(get_db)
 ):
     market = await db.get(Market, market_id)
 
     if not market:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Market with id {market_id} not found"
+            detail=f"Market with id {market_id} not found",
         )
 
     update_data = market_update.model_dump(exclude_unset=True)
@@ -102,16 +94,13 @@ async def update_market(
 
 
 @router.delete("/{market_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_market(
-    market_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def delete_market(market_id: UUID, db: AsyncSession = Depends(get_db)):
     market = await db.get(Market, market_id)
 
     if not market:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Market with id {market_id} not found"
+            detail=f"Market with id {market_id} not found",
         )
 
     await db.delete(market)

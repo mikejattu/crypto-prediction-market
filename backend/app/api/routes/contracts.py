@@ -10,17 +10,14 @@ from app.schemas.contract import (
     ContractCreate,
     ContractUpdate,
     ContractResponse,
-    ContractListResponse
+    ContractListResponse,
 )
 
 router = APIRouter(prefix="/contracts", tags=["contracts"])
 
 
 @router.post("/", response_model=ContractResponse, status_code=status.HTTP_201_CREATED)
-async def create_contract(
-    contract: ContractCreate,
-    db: AsyncSession = Depends(get_db)
-):
+async def create_contract(contract: ContractCreate, db: AsyncSession = Depends(get_db)):
     db_contract = Contract(**contract.model_dump())
     db.add(db_contract)
     await db.commit()
@@ -33,7 +30,7 @@ async def list_contracts(
     skip: int = 0,
     limit: int = 100,
     market_id: Optional[UUID] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     query = select(Contract)
 
@@ -56,16 +53,13 @@ async def list_contracts(
 
 
 @router.get("/{contract_id}", response_model=ContractResponse)
-async def get_contract(
-    contract_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_contract(contract_id: UUID, db: AsyncSession = Depends(get_db)):
     contract = await db.get(Contract, contract_id)
 
     if not contract:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Contract with id {contract_id} not found"
+            detail=f"Contract with id {contract_id} not found",
         )
 
     return contract
@@ -75,14 +69,14 @@ async def get_contract(
 async def update_contract(
     contract_id: UUID,
     contract_update: ContractUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     contract = await db.get(Contract, contract_id)
 
     if not contract:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Contract with id {contract_id} not found"
+            detail=f"Contract with id {contract_id} not found",
         )
 
     update_data = contract_update.model_dump(exclude_unset=True)
@@ -96,16 +90,13 @@ async def update_contract(
 
 
 @router.delete("/{contract_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_contract(
-    contract_id: UUID,
-    db: AsyncSession = Depends(get_db)
-):
+async def delete_contract(contract_id: UUID, db: AsyncSession = Depends(get_db)):
     contract = await db.get(Contract, contract_id)
 
     if not contract:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Contract with id {contract_id} not found"
+            detail=f"Contract with id {contract_id} not found",
         )
 
     await db.delete(contract)
