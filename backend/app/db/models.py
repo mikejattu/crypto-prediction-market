@@ -57,7 +57,7 @@ class Market(Base):
     resolution_time = Column(TIMESTAMP)
     last_updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
     total_volume = Column(DECIMAL(20, 2))
-    resolved_outcome_id = Column(UUID(as_uuid=True), ForeignKey("contracts.id"))
+    resolved_outcome_id = Column(UUID(as_uuid=True))  # Removed FK to break circular dependency
 
     platform = relationship("Platform", back_populates="markets")
     crypto_category = relationship("CryptoCategory", back_populates="markets")
