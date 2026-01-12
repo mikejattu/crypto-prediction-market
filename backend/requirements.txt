@@ -1,5 +1,10 @@
 fastapi[standard]
 pytest
+sqlalchemy[asyncio]
+aiosqlite
+httpx
+apscheduler
+asyncpg
 sqlalchemy[asyncio]>=2.0.0
 asyncpg
 alembic

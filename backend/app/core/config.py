@@ -11,6 +11,10 @@ class Settings(BaseSettings):
 
     DATABASE_URL: Optional[str] = None
     REDIS_URL: str = "redis://localhost:6379"
+    POLYMARKET_API_BASE: str = "https://clob.polymarket.com"
+    POLL_INTERVAL_SECONDS: int = 300
+    FRESHNESS_WARNING_SECONDS: int = 900
+    ENABLE_POLLER: bool = True
 
     ENVIRONMENT: str = "development"
     DEBUG: bool = True

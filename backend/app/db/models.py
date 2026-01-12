@@ -108,6 +108,30 @@ class Contract(Base):
     market = relationship(
         "Market", back_populates="contracts", foreign_keys=[market_id]
     )
+    snapshots = relationship(
+        "MarketSnapshot",
+        back_populates="contract",
+        cascade="all, delete-orphan",
+        order_by="MarketSnapshot.timestamp.desc()",
+    )
 
     def __repr__(self):
         return f"<Contract(outcome='{self.outcome_label}', price={self.current_price})>"
+
+
+class MarketSnapshot(Base):
+    __tablename__ = "market_snapshots"
+
+    timestamp = Column(TIMESTAMP, primary_key=True)
+    contract_id = Column(
+        UUID(as_uuid=True), ForeignKey("contracts.id"), primary_key=True, index=True
+    )
+    price = Column(DECIMAL(10, 4), nullable=False)
+    probability = Column(DECIMAL(5, 4), nullable=False)
+    volume_24h = Column(DECIMAL(20, 2))
+    liquidity = Column(DECIMAL(20, 2))
+    bid = Column(DECIMAL(10, 4))
+    ask = Column(DECIMAL(10, 4))
+    spread = Column(DECIMAL(10, 4))
+
+    contract = relationship("Contract", back_populates="snapshots")
