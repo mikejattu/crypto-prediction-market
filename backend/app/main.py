@@ -8,8 +8,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from app.core.config import settings
-from app.api.routes import platforms, markets, contracts, crypto_categories, prices
+from app.api.routes import platforms, markets, contracts, crypto_categories, prices, sentiment
 from app.tasks.price_fetcher import fetch_and_store_prices
+from app.tasks.sentiment_fetcher import fetch_and_store_sentiment
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,22 @@ async def lifespan(app: FastAPI):
 
         # Also fetch prices right away on startup
         asyncio.create_task(fetch_and_store_prices())
+
+    if settings.SENTIMENT_FETCH_ENABLED:
+        scheduler.add_job(
+            fetch_and_store_sentiment,
+            trigger=IntervalTrigger(minutes=settings.SENTIMENT_FETCH_INTERVAL_MINUTES),
+            id="sentiment_fetcher",
+            name="Fetch and analyze crypto sentiment",
+            replace_existing=True,
+        )
+        if not scheduler.running:
+            scheduler.start()
+        logger.info(
+            f"Sentiment fetcher scheduled to run every {settings.SENTIMENT_FETCH_INTERVAL_MINUTES} minutes"
+        )
+
+        asyncio.create_task(fetch_and_store_sentiment())
 
     yield
 
@@ -76,6 +93,7 @@ app.include_router(markets.router, prefix=settings.API_V1_PREFIX)
 app.include_router(contracts.router, prefix=settings.API_V1_PREFIX)
 app.include_router(crypto_categories.router, prefix=settings.API_V1_PREFIX)
 app.include_router(prices.router, prefix=settings.API_V1_PREFIX)
+app.include_router(sentiment.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/", tags=["root"])
