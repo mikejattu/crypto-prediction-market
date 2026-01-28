@@ -45,9 +45,35 @@ class CryptoCategory(Base):
     created_at = Column(TIMESTAMP, server_default=func.now())
 
     markets = relationship("Market", back_populates="crypto_category")
+    prices = relationship(
+        "CryptoPrice", back_populates="crypto_category", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<CryptoCategory(name='{self.name}', symbol='{self.symbol}')>"
+
+
+class CryptoPrice(Base):
+    __tablename__ = "crypto_prices"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    crypto_category_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("crypto_categories.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    price_usd = Column(DECIMAL(20, 8), nullable=False)
+    price_change_24h = Column(DECIMAL(10, 4))
+    market_cap_usd = Column(DECIMAL(30, 2))
+    volume_24h_usd = Column(DECIMAL(30, 2))
+    last_updated_at = Column(TIMESTAMP, nullable=False)
+    fetched_at = Column(TIMESTAMP, server_default=func.now(), nullable=False, index=True)
+
+    crypto_category = relationship("CryptoCategory", back_populates="prices")
+
+    def __repr__(self):
+        return f"<CryptoPrice(crypto={self.crypto_category_id}, price=${self.price_usd})>"
 
 
 class Market(Base):
