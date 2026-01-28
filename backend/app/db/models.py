@@ -6,6 +6,8 @@ from sqlalchemy import (
     Text,
     ForeignKey,
     DECIMAL,
+    Integer,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -47,6 +49,11 @@ class CryptoCategory(Base):
     markets = relationship("Market", back_populates="crypto_category")
     prices = relationship(
         "CryptoPrice", back_populates="crypto_category", cascade="all, delete-orphan"
+    )
+    sentiment_scores = relationship(
+        "SentimentScore",
+        back_populates="crypto_category",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self):
@@ -137,3 +144,38 @@ class Contract(Base):
 
     def __repr__(self):
         return f"<Contract(outcome='{self.outcome_label}', price={self.current_price})>"
+
+
+class SentimentScore(Base):
+    __tablename__ = "sentiment_scores"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    crypto_category_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("crypto_categories.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    source = Column(String(20), nullable=False, index=True)
+    window_start = Column(TIMESTAMP, nullable=False, index=True)
+    window_end = Column(TIMESTAMP, nullable=False)
+    positive_score = Column(DECIMAL(5, 4), nullable=False)
+    negative_score = Column(DECIMAL(5, 4), nullable=False)
+    neutral_score = Column(DECIMAL(5, 4), nullable=False)
+    composite_score = Column(DECIMAL(5, 4), nullable=False)
+    sample_count = Column(Integer, nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+
+    crypto_category = relationship("CryptoCategory", back_populates="sentiment_scores")
+
+    __table_args__ = (
+        UniqueConstraint(
+            "crypto_category_id",
+            "source",
+            "window_start",
+            name="uq_sentiment_crypto_source_window",
+        ),
+    )
+
+    def __repr__(self):
+        return f"<SentimentScore(source={self.source}, composite={self.composite_score})>"
